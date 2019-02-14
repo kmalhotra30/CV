@@ -1,0 +1,9 @@
+Q 1.2.2
+
+The reason behind errors sould be computational problems (underflow etc).
+
+
+
+Important Points
+1)Size of p , q, SE in check_integratibilty.m . Why should it be 3d? Line 9,10,11
+2)Need to confirm intuition for double derivate in check_integratibilty.m
