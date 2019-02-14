@@ -21,16 +21,24 @@ switch path_type
         % top left corner of height_map is zero
         % for each pixel in the left column of height_map
         %   height_value = previous_height_value + corresponding_q_value
+        height_map(1,1) = q(1,1);
+        for row = 2:h
+            height_map(2,1) = height_map(row-1,1) + q(row,1);
+        end
         
+            
+            
+            
         % for each row
         %   for each element of the row except for leftmost
         %       height_value = previous_height_value + corresponding_p_value
         
-        for i = 1:h
-            for j = 2:w
-                height_map(i,j) = height_map(i,j-1) + p(i,j);
+        for row = 1:h
+            for col = 2:w
+                height_map(row,col) = height_map(row,col-1) + p(row,col);
             end
         end
+        
        
         % =================================================================
                
@@ -38,20 +46,68 @@ switch path_type
         
         % =================================================================
         % YOUR CODE GOES HERE
-        for j = 1:w
-            for i = 2:h
-                height_map(i,j) = height_map(i-1,j) + q(i,j);
+        % top left corner of height_map is zero
+        % for each pixel in the top row of height_map
+        %   height_value = previous_height_value + corresponding_p_value
+        height_map(1,1) = p(1,1);
+        for col = 2:w
+            height_map(1,col) = height_map(1,col-1) + p(1,col);
+        end     
+        % for each col
+        %   for each element of the col except for topmost
+        %       height_value = previous_height_value + corresponding_q_value
+        
+        for row = 2:h
+            for col = 1:w
+                height_map(row,col) = height_map(row-1,col) + q(row,col);
             end
         end
-
+        
+       
         % =================================================================
-          
+         
     case 'average'
         
+        %%Col_major
         % =================================================================
         % YOUR CODE GOES HERE
-
+        height_map_col_major = height_map;
+        height_map_col_major(1,1) = q(1,1);
+        for row = 2:h
+            height_map_col_major(2,1) = height_map_col_major(row-1,1) + q(row,1);
+        end
         
+            
+            
+            
+        % for each row
+        %   for each element of the row except for leftmost
+        %       height_value = previous_height_value + corresponding_p_value
+        
+        for row = 1:h
+            for col = 2:w
+                height_map_col_major(row,col) = height_map_col_major(row,col-1) + p(row,col);
+            end
+        end
+        
+        %Row_major
+        
+        height_map_row_major = height_map;
+        height_map_row_major(1,1) = p(1,1);
+        for col = 2:w
+            height_map_row_major(1,col) = height_map_row_major(1,col-1) + p(1,col);
+        end     
+        % for each col
+        %   for each element of the col except for topmost
+        %       height_value = previous_height_value + corresponding_q_value
+        
+        for row = 2:h
+            for col = 1:w
+                height_map_row_major(row,col) = height_map_row_major(row-1,col) + q(row,col);
+            end
+        end
+        
+        height_map = (height_map_col_major + height_map_row_major)/2.0;
         % =================================================================
 end
 
