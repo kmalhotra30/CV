@@ -23,7 +23,7 @@ switch path_type
         %   height_value = previous_height_value + corresponding_q_value
         height_map(1,1) = q(1,1);
         for row = 2:h
-            height_map(2,1) = height_map(row-1,1) + q(row,1);
+            height_map(row,1) = height_map(row-1,1) + q(row,1);
         end
         
             
