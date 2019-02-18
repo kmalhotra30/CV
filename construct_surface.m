@@ -74,7 +74,7 @@ switch path_type
         height_map_col_major = height_map;
         height_map_col_major(1,1) = q(1,1);
         for row = 2:h
-            height_map_col_major(2,1) = height_map_col_major(row-1,1) + q(row,1);
+            height_map_col_major(row,1) = height_map_col_major(row-1,1) + q(row,1);
         end
         
             
