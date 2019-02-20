@@ -14,7 +14,7 @@ disp('Loading images...')
 
 % 2. To load different images we change the folder name to the 
 % desired image folder
-image_dir = './photometrics_images/MonkeyGray/';  
+image_dir = './photometrics_images/SphereGray5/';  
 %image_ext = '*.png';
 
 [image_stack, scriptV] = load_syn_images(image_dir);
@@ -43,7 +43,7 @@ fprintf('Number of outliers: %d\n\n', sum(sum(SE > threshold)));
 %% compute the surface height
 % 5. This function takes as last argument either "row", "column" or
 % "average"
-height_map = construct_surface( p, q ,'average');
+height_map = construct_surface( p, q ,'column');
 
 %% Display
 
@@ -53,7 +53,7 @@ show_results(albedo, normals, SE);
 show_model(albedo, height_map);
 
 % This call is useful to see just the albedo image
-imshow(albedo)
+%imshow(albedo)
 
 
 
@@ -100,9 +100,9 @@ show_model(albedo, height_map);
 % 8. Using the load_syn_images function with the provided color channel 
 % argument, we load the image stack and scriptV matrix for each color
 % channel
-[image_stackRed, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 1);
-[image_stackGreen, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 2);
-[image_stackBlue, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 3);
+[image_stackRed, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 1);
+[image_stackGreen, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 2);
+[image_stackBlue, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 3);
 
 % 9. We use the red channel to extract the dimensions
 [h, w, n] = size(image_stackRed);
@@ -185,28 +185,34 @@ for row=1:h
     end
 end
          
-% 14. The albedos used for plotting are simply added together
+%% % 14. The albedo is 3 dimensional (3rd dimension for
+% colour channel)
 % Note: that for plotting the colored Monkey we may not add the green 
 % albedo as it will contain undefined values NaNs
-albedo = albedoR + albedoG + albedoB;
+albedo = zeros(size(albedoR,1),size(albedoR,2),3);
+albedo(:,:,1) = albedoR;
+albedo(:,:,2) = albedoG;
+albedo(:,:,3) = albedoB;
+imshow(albedo);
 
 % 15. The following line may be commented out if the user wished to see the 
 % naive combination of normals from different channels
-normals = normalComb;
+% normals = normalComb;
 
 % 16. In the following three lines we calculate the derivatives using 
 % our naive normals. The user may comment out either of these lines 
 % depending on which results should be displayed
 [pNaive, qNaive, SE] = check_integrability(normals);
 height_mapNaive = construct_surface( pNaive, qNaive , 'average');
-height_mapCombined = construct_surface( pComb, qComb , 'average');
+% height_mapCombined = construct_surface( pComb, qComb , 'average');
 
 % 17. Likewise as stated above, these lines should also be commented out 
 % accordingly to see the model of interest, otherwise the last function 
 % call will be the one displayed
 show_results(albedo, normals, SE);
 show_model(albedo, height_mapNaive);
-show_model(albedo, height_mapCombined);
+% show_model(albedo, height_mapCombined);
+
 
 %% 18. Plot only normal-map as a single image
 

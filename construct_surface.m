@@ -21,13 +21,12 @@ switch path_type
         % top left corner of height_map is zero
         % for each pixel in the left column of height_map
         %   height_value = previous_height_value + corresponding_q_value
+        
+        % Column Major integration
         height_map(1,1) = q(1,1);
         for row = 2:h
             height_map(row,1) = height_map(row-1,1) + q(row,1);
         end
-        
-            
-            
             
         % for each row
         %   for each element of the row except for leftmost
@@ -41,7 +40,8 @@ switch path_type
         
        
         % =================================================================
-               
+     
+    %Row Major Integration
     case 'row'
         
         % =================================================================
@@ -65,7 +65,9 @@ switch path_type
         
        
         % =================================================================
-         
+    
+    %Essentially , we compute column major and row major integration , then
+    %dvide their sum by two
     case 'average'
         
         %%Col_major

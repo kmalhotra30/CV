@@ -5,12 +5,7 @@ function [ p, q, SE ] = check_integrability( normals )
 %   q : df / dy
 %   SE : Squared Errors of the 2 second derivatives
 
-% initalization
-p = zeros(size(normals)); % Why is it 3d?
-q = zeros(size(normals)); % Why is it 3d?
-SE = zeros(size(normals)); % Why is it 3d?
-
-%Reinitializing the sizes - Need to check with TA
+%Initializing Matrices
 
 [h,w,d] = size(normals);
 p = zeros(h,w);
@@ -23,9 +18,8 @@ SE = zeros(h,w);
 % Compute p and q, where
 % p measures value of df / dx
 % q measures value of df / dy
-p = normals(:,:,1) ./ normals(:,:,3); % Maybe it should be negative
-q = normals(:,:,2) ./ normals(:,:,3); % Maybe it should be negative
-
+p = normals(:,:,1) ./ normals(:,:,3); 
+q = normals(:,:,2) ./ normals(:,:,3); 
 
 % ========================================================================
 

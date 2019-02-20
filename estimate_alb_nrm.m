@@ -30,6 +30,7 @@ normal = zeros(h, w, 3);
 %   normal at this point is g / |g|
 
 if shadow_trick == true
+    %With Shadow Trick
     for row=1:h
         for col=1:w
            i = image_stack(row,col,:); % This is a vector
@@ -37,21 +38,20 @@ if shadow_trick == true
            scriptI = diag(i,0); %I for shadow trick
            A = scriptI * scriptV; % AX = B
            B = scriptI * i;
-           warning('off','all')
-           g = linsolve(A,B); % Least square solution
+           [g,r] = linsolve(A,B); % Least square solution
            albedo(row,col,1) = norm(g);
            normal(row,col,:) = g ./ albedo(row,col,1);
         end
     end
 else
+  % Without Shadow Trick
   for row=1:h
         for col=1:w
            i = image_stack(row,col,:);
            i = squeeze(i);
-           warning('off','all')
            A = scriptV;
            B = i;
-           g = linsolve(A,B);
+           [g,r] = linsolve(A,B);
            albedo(row,col,1) = norm(g);
            normal(row,col,:) = g ./ albedo(row,col,1);
         end
