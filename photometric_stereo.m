@@ -1,7 +1,9 @@
+%%
 close all
 clear all
 clc
- 
+%% 
+
 disp('Part 1: Photometric Stereo')
 
 % obtain many images in a fixed view under different illumination
@@ -15,7 +17,7 @@ fprintf('Finish loading %d images.\n\n', n);
 
 % compute the surface gradient from the stack of imgs and light source mat
 disp('Computing surface albedo and normal map...')
-[albedo, normals] = estimate_alb_nrm(image_stack, scriptV,false);
+[albedo, normals] = estimate_alb_nrm(image_stack(:, :, 1:50), scriptV(1:50, :), true);
 
 % Code for printing the normals
 %[h,w,d] = size(normals);
@@ -35,12 +37,15 @@ SE(SE <= threshold) = NaN; % for good visualization
 fprintf('Number of outliers: %d\n\n', sum(sum(SE > threshold)));
 
 %% compute the surface height
-height_map = construct_surface( p, q ,'column');
+height_map = construct_surface( p, q ,'average');
 
 %% Display
 
-show_results(albedo, normals, SE);
-show_model(albedo, height_map);
+% show_results(albedo, normals, SE);
+% show_model(albedo, height_map);
+imshow(albedo)
+
+
 
 
 
@@ -78,9 +83,9 @@ show_model(albedo, height_map);
 
 
 %% Sphere Color
-[image_stackRed, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 1);
-[image_stackGreen, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 2);
-[image_stackBlue, scriptV] = load_syn_images('./photometrics_images/SphereColor/', 3);
+[image_stackRed, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 1);
+[image_stackGreen, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 2);
+[image_stackBlue, scriptV] = load_syn_images('./photometrics_images/MonkeyColor/', 3);
 % imshow(image_stackRed(:, :, 1))
 % imshow(image_stackGreen(:, :, 1))
 % imshow(image_stackBlue(:, :, 1))
@@ -90,9 +95,9 @@ size(image_stackRed)
 [h, w, n] = size(image_stackRed);
 fprintf('Finish loading %d images.\n\n', n);
 disp('Computing surface albedo and normal map...')
-[albedoR, normalsR] = estimate_alb_nrm(image_stackRed, scriptV,false);
-[albedoG, normalsG] = estimate_alb_nrm(image_stackGreen, scriptV,false);
-[albedoB, normalsB] = estimate_alb_nrm(image_stackBlue, scriptV,false);
+[albedoR, normalsR] = estimate_alb_nrm(image_stackRed, scriptV,true);
+[albedoG, normalsG] = estimate_alb_nrm(image_stackGreen, scriptV,true);
+[albedoB, normalsB] = estimate_alb_nrm(image_stackBlue, scriptV,true);
 
 
 
@@ -108,11 +113,13 @@ disp('Integrability checking')
 normalComb = zeros(size(normalsR));
 [h,w,d] = size(normalComb);
 
+% Combining normals and normalizing (ensuring unit length)
 
 for i=1:h
     for j = 1:w
+%         dummy = [0, 0, 0];
         for k = 1:d
-           
+            
             if isnan(normalsR(i,j,k)) && isnan(normalsG(i,j,k)) && isnan(normalsB(i,j,k))
                 normalComb(i,j,k) = NaN;
             end
@@ -126,9 +133,11 @@ for i=1:h
                 normalComb(i,j,k) = normalComb(i,j,k) + normalsB(i,j,k);
             end
         end
+        % Normalize normal-vector (turn into unit vector)
+        norms = squeeze(normalComb(i,j,:));
+        normalComb(i, j, :) = norms / norm(norms);
     end
 end
-
 
 %%
 
@@ -140,24 +149,39 @@ SE(SE <= threshold) = NaN; % for good visualization
 fprintf('Number of outliers: %d\n\n', sum(sum(SE > threshold)));
 
 %% compute the surface height
-% height_mapR = construct_surface( pR, qR , 'average');
-% height_mapG = construct_surface( pG, qG , 'average');
-% height_mapB = construct_surface( pB, qB , 'average');
 
+% Combine normals the naive way
+normals = normalsR + normalsB;% + normalsB;
+
+for row=1:h
+    for col=1:w
+        norms = squeeze(normals(row, col, :));
+        normals(row, col, :) = norms / norm(norms);
+    end
+end
+         
+
+albedo = albedoR + albedoB;% + albedoG;
+normals = normalComb;
+
+% [pNaive, qNaive, SE] = check_integrability(normals);
+% height_mapNaive = construct_surface( pNaive, qNaive , 'average');
 height_mapCombined = construct_surface( pComb, qComb , 'average');
 
-
-% normals = normalsR + normalsG + normalsB;
-albedo = albedoR + albedoG + albedoB;
-% height_map = (height_mapR + height_mapG + height_mapB);
-
-% show_results(albedoR, normalsR , SE);
-% show_results(albedoB, normalsB , SE);
-% show_results(albedoR + albedoB, normalsB + normalsR , SE);
-
-
-
-show_results(albedo, normalComb , SE);
+% show_results(albedo, normals, SE);
+% show_model(albedo, height_mapNaive);
 show_model(albedo, height_mapCombined);
-% show_model(albedo, height_map);
+
+% PLOT NORMALS:
+minN = min(min(normals, [], 1), [], 2);
+maxN = max(max(normals, [], 1), [], 2);
+normal_img = (normals - minN) ./ (maxN - minN);
+% NOTE: all 3 operations(-, /, -) are done in in broadcasting manner
+% before MATLAB2016B, must use BSXFUN(@minus, normals, minN), ...
+imshow(normal_img);
+title('Normal map');
+
+
+
+
 
